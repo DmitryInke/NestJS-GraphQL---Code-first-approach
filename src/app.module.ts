@@ -7,6 +7,9 @@ import { join } from 'path';
 import { CoffeesModule } from './coffees/coffees.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { DateScalar } from './common/scalars/date.scalar';
+import { Tea } from './teas/entities/tea.entity/tea.entity';
+import { DrinksResolver } from './drinks/drinks.resolver';
 
 @Module({
   imports: [
@@ -25,11 +28,14 @@ import { ConfigModule } from '@nestjs/config';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      buildSchemaOptions: {
+        orphanedTypes: [Tea]
+      }
     }),
     CoffeesModule,
-    ConfigModule.forRoot()
+    ConfigModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DateScalar, DrinksResolver],
 })
 export class AppModule {}
