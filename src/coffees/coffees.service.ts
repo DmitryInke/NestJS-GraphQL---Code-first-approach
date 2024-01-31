@@ -6,6 +6,7 @@ import { Coffee } from './enitites/coffee.entity';
 import { UserInputError } from 'apollo-server-express';
 import { UpdateCoffeeInput } from './dto/update-coffee.input';
 import { Flavor } from './enitites/flavor.entity';
+import { PubSub } from 'graphql-subscriptions';
 
 @Injectable()
 export class CoffeesService {
@@ -14,6 +15,7 @@ export class CoffeesService {
     private readonly coffeesRepository: Repository<Coffee>,
     @InjectRepository(Flavor)
     private readonly flavorsRepository: Repository<Flavor>,
+    private readonly pubSub: PubSub,
   ) {}
   async findAll() {
     return this.coffeesRepository.find();
@@ -35,19 +37,21 @@ export class CoffeesService {
       ...createCoffeeInput,
       flavors,
     });
-    return this.coffeesRepository.save(coffee);
+    const newCoffeeEntity = await this.coffeesRepository.save(coffee);
+    this.pubSub.publish('coffeeAdded', { coffeeAdded: newCoffeeEntity });
+    return newCoffeeEntity;
   }
 
   async update(id: number, updateCoffeeInput: UpdateCoffeeInput) {
     const flavors =
-    updateCoffeeInput.flavors &&
+      updateCoffeeInput.flavors &&
       (await Promise.all(
         updateCoffeeInput.flavors.map((name) => this.preloadFlavorByName(name)),
       ));
     const coffee = await this.coffeesRepository.preload({
       id,
       ...updateCoffeeInput,
-      flavors
+      flavors,
     });
     if (!coffee) {
       throw new UserInputError(`Coffee #${id} does not exist`);

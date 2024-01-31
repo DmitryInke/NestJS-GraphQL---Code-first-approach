@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DateScalar } from './common/scalars/date.scalar';
 import { Tea } from './teas/entities/tea.entity/tea.entity';
 import { DrinksResolver } from './drinks/drinks.resolver';
+import { PubSubModule } from './pub-sub/pub-sub.module';
 
 @Module({
   imports: [
@@ -23,17 +24,20 @@ import { DrinksResolver } from './drinks/drinks.resolver';
         database: process.env.DATABASE_NAME,
         autoLoadEntities: true,
         synchronize: true,
+        logging: ['query'],
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       buildSchemaOptions: {
-        orphanedTypes: [Tea]
-      }
+        orphanedTypes: [Tea],
+      },
+      installSubscriptionHandlers: true,
     }),
     CoffeesModule,
     ConfigModule.forRoot(),
+    PubSubModule,
   ],
   controllers: [AppController],
   providers: [AppService, DateScalar, DrinksResolver],

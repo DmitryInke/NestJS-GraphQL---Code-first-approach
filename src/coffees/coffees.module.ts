@@ -5,9 +5,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Coffee } from './enitites/coffee.entity';
 import { Flavor } from './enitites/flavor.entity';
 import { CoffeeFlavorsResolver } from './coffee-flavors.resolver';
+import { PubSubModule } from 'src/pub-sub/pub-sub.module';
+import { FlavorsByCoffeeLoader } from './data-loader/flavors-by-coffee.loader';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Coffee, Flavor])],
-  providers: [CoffeesResolver, CoffeesService, CoffeeFlavorsResolver]
+  imports: [TypeOrmModule.forFeature([Coffee, Flavor]), PubSubModule],
+  providers: [
+    CoffeesResolver,
+    CoffeesService,
+    CoffeeFlavorsResolver,
+    FlavorsByCoffeeLoader,
+  ],
 })
 export class CoffeesModule {}

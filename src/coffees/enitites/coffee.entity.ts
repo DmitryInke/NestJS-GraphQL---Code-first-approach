@@ -10,6 +10,7 @@ import {
 import { Flavor } from './flavor.entity';
 import { Drink } from 'src/common/interfaces/drink.interface';
 import { CoffeeType } from 'src/common/enums/coffee-type.enum';
+import { loggerMiddleware } from 'src/common/middleware/logger.middleware';
 
 @Entity()
 @ObjectType({ description: 'Coffee model', implements: () => Drink })
@@ -18,6 +19,7 @@ export class Coffee implements Drink {
   @Field(() => ID, { description: 'A unique indentifier' })
   id: number;
 
+  @Field({ middleware: [loggerMiddleware] })
   @Column()
   name: string;
 
@@ -33,6 +35,6 @@ export class Coffee implements Drink {
   @CreateDateColumn()
   createdAt?: Date;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   type?: CoffeeType;
 }
